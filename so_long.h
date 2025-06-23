@@ -4,6 +4,7 @@
 # include <mlx.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include "get_next_line.h"
 
 typedef struct s_data
 {
