@@ -42,23 +42,36 @@ static void	put_objects(map_t map, t_data data)
 	}
 }
 
-static void	ber_to_char(map_t map, t_data data)
+static void	ber_to_char(map_t *map, const char *file_path)
 {
-	int		i;
-	int		j;
-	int 	fd;
+	int		fd;
+	int		i = 0;
+	int		lines;
+	char	*line;
 
-	fd = open("maps/a.ber", O_RDONLY);
-	i = 0;
-	while(map->map[i][j])
+	lines = map_h(map);
+	map->map = malloc(sizeof(char *) * (lines + 1));
+	if (!map->map)
 	{
-		j = 0;
-		while(map->map[i][j])
-		{
-			
-		}
+		handle_error();
+		return ;
+	}
+	map[lines] = '\0';
+	fd = open(file_path, O_RDONLY);
+	if (fd < 0)
+	{
+		handle_error();
+		return ;
+	}
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		map->map[i] = line;
+		//if (i == 0)
+			//map->width = ft_strlen(line) - (line[ft_strlen(line) - 1] == '\n');
 		i++;
 	}
+	//map->height = i;
+	close(fd);
 }
 
 void    create_map(map_t map, t_data data)

@@ -57,9 +57,9 @@ int	line_len(map_t map)
 	int		i;
 
 	i = 0;
-	while(map[i][0])
+	while(map[0][i])
 		i++;
-	return (exitp);
+	return (i);
 }
 
 int	map_h(map_t map)
@@ -67,9 +67,9 @@ int	map_h(map_t map)
 	int		j;
 
 	j = 0;
-	while(map[0][j])
+	while(map[j][0])
 		j++;
-	return (exitp);
+	return (j);
 }
 
 void	img_init(data_t data)
