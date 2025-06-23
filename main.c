@@ -1,23 +1,5 @@
 #include "so_long.h"
 
-void map_checker(map_t map)
-{
-    int i;
-    int j;
-
-    i = 0;
-    while(matrix[][])
-    {
-        j = 0;
-        while(matrix[][])
-        {
-            // mapa rectangular
-            // mapa con muros
-            // recorrido posible
-        }
-    }
-}
-
 int main (int argc, char **argv)
 {
     void	*mlx_connection;

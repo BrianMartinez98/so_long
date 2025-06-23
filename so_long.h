@@ -18,7 +18,7 @@ typedef struct s_data
 
 typedef struct map_s
 {
-
+	char	**map;
 }				map_t
 
 char	*find_entrance(map_t map, char a);
@@ -27,5 +27,6 @@ void	map_checker(map_t map);
 void	create_map(map_t map, t_data data);
 int		map_h(map_t map);
 int		line_len(map_t map);
+void	handle_error(void);
 
 #endif

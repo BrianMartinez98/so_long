@@ -42,8 +42,28 @@ static void	put_objects(map_t map, t_data data)
 	}
 }
 
+static void	ber_to_char(map_t map, t_data data)
+{
+	int		i;
+	int		j;
+	int 	fd;
+
+	fd = open("maps/a.ber", O_RDONLY);
+	i = 0;
+	while(map->map[i][j])
+	{
+		j = 0;
+		while(map->map[i][j])
+		{
+			
+		}
+		i++;
+	}
+}
+
 void    create_map(map_t map, t_data data)
 {
+	ber_to_char(map, data);
 	put_background(map, data);
 	put_objects(map, data);
 }
