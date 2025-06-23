@@ -26,7 +26,7 @@ char	*find_entrance(map_t map, char a)
 	return (exitp);
 }
 
-void	paiting(map_t map, int row, int colum)
+void	ft_paiting(map_t map, int row, int colum)
 {
 	if (map[row][colum] == 0)
 		map[row][colum] = r;
@@ -70,4 +70,13 @@ int	map_h(map_t map)
 	while(map[0][j])
 		j++;
 	return (exitp);
+}
+
+void	img_init(data_t data)
+{
+	data->back = mlx_xpm_file_to_image(mlx, "rs/floor.xpm", &width, &height);
+	data->obj = mlx_xpm_file_to_image(mlx, "rs/obj.xpm", &width, &height);
+	data->wall = mlx_xpm_file_to_image(mlx, "rs/wall.xpm", &width, &height);
+	data->player = mlx_xpm_file_to_image(mlx, "rs/player.xpm", &width, &height);
+	data->exit = mlx_xpm_file_to_image(mlx, "rs/exit.xpm", &width, &height);
 }

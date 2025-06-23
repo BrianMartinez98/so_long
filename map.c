@@ -12,6 +12,7 @@ static void	put_background(map_t map, t_data data)
 		while(map[i][j])
 		{
 			mlx_put_image_to_window(data->mlx, data->window, data->back, i, j);
+			j++;
 		}
 		i++;
 	}
@@ -30,7 +31,7 @@ static void	put_objects(map_t map, t_data data)
 		{
 			if(map[i][j] == '1')
 				mlx_put_image_to_window(data->mlx, data->window, data->wall, i, j);
-			else if(map[i][j] == 'c')
+			else if(map[i][j] == 'C')
 				mlx_put_image_to_window(data->mlx, data->window, data->obj, i, j);
 			else if(map[i][j] == 'E')
 				mlx_put_image_to_window(data->mlx, data->window, data->exit, i, j);
