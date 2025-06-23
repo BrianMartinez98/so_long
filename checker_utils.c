@@ -51,3 +51,23 @@ void	paiting(map_t map, int row, int colum)
 		painting(map, row, colum - 1);
 	}
 }
+
+int	line_len(map_t map)
+{	
+	int		i;
+
+	i = 0;
+	while(map[i][0])
+		i++;
+	return (exitp);
+}
+
+int	map_h(map_t map)
+{	
+	int		j;
+
+	j = 0;
+	while(map[0][j])
+		j++;
+	return (exitp);
+}

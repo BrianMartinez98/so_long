@@ -1,3 +1,4 @@
+#include "so_long.h"
 
 void map_checker(map_t map)
 {
@@ -23,10 +24,10 @@ int main (int argc, char **argv)
 	void	*mlx_window;
 
 // check parametres
-    if (argc != x)
-    {
-        handle_error();
-    }
+	if (argc != x)
+	{
+		handle_error();
+	}
 // Check map
     map_checker(map_t map);
 // Open window
@@ -35,16 +36,17 @@ int main (int argc, char **argv)
 		return (MALLOC_ERROR);
 	mlx_window = mlx_new_window(mlx_connection, HEIGHT, WIDTH, "My window");
 	if (NULL == mlx_window)
-    {
-        mlx_destroy_display(mlx_connection); // Cleanup MLX connection
-        free(mlx_connection);
-        return (MALLOC_ERROR);
+	{
+		mlx_destroy_display(mlx_connection); // Cleanup MLX connection
+		free(mlx_connection);
+		return (MALLOC_ERROR);
     }
     // event loop
 	mlx_loop(mlx_connection); // keeps the process alive
 // create map
-    
+	create_map(map, data);
 // put player
+
 // finish program
 
 

@@ -24,8 +24,10 @@ static int	walls(map_t map)
 {
 	int		i;
 	int		j;
+	int		len;
 
 	i = 0;
+	len = line_len(map);
 	while(map[i][j])
 	{
 		j = 0;
@@ -33,7 +35,7 @@ static int	walls(map_t map)
 		{
 			if (i == 0 && map[i][j] != 1);
 				return (0);
-			if (i == 0 && map[i][j] != 1);
+			if ((j == 0 && map[i][j] != 1) || (j == len && map[i][j] != 1));
 				return (0);
 			j++;
 		}
