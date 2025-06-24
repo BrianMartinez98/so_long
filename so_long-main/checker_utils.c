@@ -1,77 +1,16 @@
 #include "so_long.h"
 
-char	*find_entrance(map_t *map, char a)
-{	
-	int		i;
-	int		j;
-	char	*exitp;
-
-	exitp = (char *)malloc(sizeof(char) * 2);
-	i = 1;
-	j = 0;
-	while(map->map[i][j])
-	{
-		j = 0;
-		while(map->map[i][j])
-		{
-			if (map->map[i][j] == a)
-			{
-				exitp[0] = i;
-				exitp[1] = j;
-				exitp[2] = '\0';
-			}
-			j++;
-		}
-		i++;
-	}
-	return (exitp);
-}
-
-void	ft_painting(map_t *map, int row, int colum)
-{
-	if (map->map[row][colum] == 0)
-		map->map[row][colum] = 'r';
-	else if (map->map[row][colum] == 'C')
-	{
-		map->collectables ++;
-		map->map[row][colum] = 'r';
-	}
-	else if (map->map[row][colum] == 'E')
-	{
-		map->exit = 1;
-		return ;
-	}
-	else
-		return ;
-	ft_painting(map, row + 1, colum);
-	ft_painting(map, row - 1, colum);
-	ft_painting(map, row, colum + 1);
-	ft_painting(map, row, colum - 1);
-}
-
-void	img_init(t_data *data)
-{
-	int width;
-    int height;
-	
-	data->back = mlx_xpm_file_to_image(data->mlx, "rs/floor.xpm", &width, &height);
-	data->obj = mlx_xpm_file_to_image(data->mlx, "rs/obj.xpm", &width, &height);
-	data->wall = mlx_xpm_file_to_image(data->mlx, "rs/wall.xpm", &width, &height);
-	data->player = mlx_xpm_file_to_image(data->mlx, "rs/player.xpm", &width, &height);
-	data->exit = mlx_xpm_file_to_image(data->mlx, "rs/exit.xpm", &width, &height);
-}
-
 int count_lines(int fd)
 {
 	int		lines = 0;
 	char	*line;
 
+	lines = 0;
 	while ((line = get_next_line(fd)))
 	{
 		lines++;
 		free(line);
 	}
-	close(fd);
 	return (lines);
 }
 
@@ -94,6 +33,7 @@ int	line_lenght(int fd)
 	}
 	return (length);
 }
+
 void	window_size(t_data *data, char **argv)
 { 
 	int	fd;
@@ -111,6 +51,7 @@ void	window_size(t_data *data, char **argv)
 	} 
 	data->size_x = (line_lenght(fd) * TILE_SIZE); 
 	data->size_y = (count_lines(fd) * TILE_SIZE);
+	close(fd);
 }
 
 char    *ft_strcpy(char *s1, char *s2)

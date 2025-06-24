@@ -1,7 +1,7 @@
 #ifndef SO_LONG_H
 # define SO_LONG_H
 
-# define TILE_SIZE 8
+# define TILE_SIZE 32
 
 # include "minilibx-linux/mlx.h"
 # include <stdlib.h>
@@ -21,6 +21,7 @@ typedef struct s_data
 	char		*file_name;
 	int			size_x;
 	int			size_y;
+	int			fd;
 }				t_data;
 
 typedef struct map_s
@@ -32,15 +33,15 @@ typedef struct map_s
 	int		exit;
 }				map_t;
 
-char	*find_entrance(map_t *map, char a);
-void	ft_painting(map_t *map, int row, int colum);
-void	map_checker(map_t *map);
-void	create_map(map_t *map, t_data *data, int fd);
+void	map_checker(map_t *map, t_data *data);
+void	create_map(map_t *map, t_data *data);
 void	handle_error(void);
 int		ft_init(t_data *data, map_t *map, char **argv, int fd);
 int		count_lines(int fd);
 char	*ft_strcpy(char *s1, char *s2);
 int		line_lenght(int fd);
 char	*ft_strnstr(const char *haystack, const char *needle, size_t len);
+void	ft_img_init(t_data *data);
+void	window_size(t_data *data, char **argv);
 
 #endif
