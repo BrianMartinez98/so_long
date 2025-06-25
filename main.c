@@ -1,38 +1,54 @@
 #include "so_long.h"
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
-    void	*mlx_connection;
-	void	*mlx_window;
+	t_data	*data;
+	map_t	*map;
 
-// check parametres
-	if (argc != x)
+	if (argc != 2)
 	{
+		write(1, "ErrorP\n", 7);
 		handle_error();
 	}
-// Check map
-    map_checker(map_t map);
-// Open window
-	mlx_connection = mlx_init();
-	if (NULL == mlx_connection)
-		return (MALLOC_ERROR);
-	mlx_window = mlx_new_window(mlx_connection, HEIGHT, WIDTH, "My window");
-	if (NULL == mlx_window)
+	data = malloc(sizeof(t_data));
+	map  = malloc(sizeof(map_t));
+	if (!data || !map)
 	{
-		mlx_destroy_display(mlx_connection); // Cleanup MLX connection
-		free(mlx_connection);
-		return (MALLOC_ERROR);
+		return (1);
+	}
+	ft_memset(data, 0, sizeof(t_data));
+	ft_memset(map, 0, sizeof(map_t));
+	data->map = map;
+	data->fd = open(argv[1], O_RDONLY);
+	if (data->fd < 0)
+	{
+		write(2, "Error5\n", 7);
+		handle_error();
+	}
+	ft_init(data, argv, data->fd);
+	window_size(data, argv);
+		data->fd = open(argv[1], O_RDONLY);
+	if (data->fd < 0) 
+	{
+		write(2, "Error5\n", 7);
+		handle_error();
+	}
+	map_checker(data);
+	data->mlx = mlx_init();
+	if (NULL == data->mlx)
+		return (1);
+	data->window = mlx_new_window(data->mlx, data->size_x, data->size_y, "Fxck");
+	if (NULL == data->window)
+	{
+		mlx_destroy_display(data->mlx);
+		free(data->mlx);
+		return (1);
     }
-    // event loop
-	mlx_loop(mlx_connection); // keeps the process alive
-// create map
-	create_map(map, data);
-// put player
-
-// finish program
-
-
-	mlx_destroy_window(mlx_connection, mlx_window);
-	mlx_destroy_display(mlx_connection);
-	free(mlx_connection);
+	ft_img_init(data);
+	create_map(data);
+	mlx_hook(data->window, 2, 1L >> 0, key_hook, data);
+	mlx_loop(data->mlx);
+	mlx_destroy_window(data->mlx, data->window);
+	mlx_destroy_display(data->mlx);
+	free(data->mlx);
 }

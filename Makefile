@@ -1,56 +1,48 @@
 NAME = so_long
 
-HEADERS =	so_long.h \
-		./get_next_line/get_next_line.h \
-		minilibx-linux/mlx.h
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -g
 
-INCLUDES =	minilibx-linux/libmlx.a
+MLX_PATH = minilibx-linux/
+MLX_LIB = $(MLX_PATH)libmlx.a
+MLX_FLAGS = -L$(MLX_PATH) -lmlx -lXext -lX11 -lm -lz
 
-SOURCES =	checker.c \
-		checker_utils.c \
-		error_free.c \
-		main.c \
-		map.c \
+GNL_PATH = get_next_line/
 
-DIR_OBJ	= objects
-OBJECTS = $(addprefix $(DIR_OBJ)/,$(SOURCES:%.c=%.o))
+CFILES = \
+	error_free.c\
+	map.c\
+	checker.c\
+	main.c\
+	checker_utils.c\
+	ft_init.c\
+	ft_move.c\
+	$(GNL_PATH)get_next_line.c\
+	$(GNL_PATH)get_next_line_utils.c\
 
-CC = gcc
-CFLAGS = -Wall -Werror -Wextra -g
+OBJECTS = $(CFILES:.c=.o)
 
-MLX_FLAGS = -g -Lmlx -lmlx -framework OpenGL -framework Appkit
+all: subsystems $(NAME)
 
+%.o : %.c
+	$(CC) $(CFLAGS) -I$(MLX_PATH) -I$(GNL_PATH) -c -o $@ $<
 
-vpath %.c sources get_next_line
+subsystems:
+	@make -C $(MLX_PATH) all
 
-all	:	make_lib make_dir $(NAME)
+$(NAME): $(OBJECTS)
+	$(CC) $(CFLAGS) $(MLX_FLAGS) $(OBJECTS) $(MLX_LIB) -o $(NAME)
 
-make_lib:
-		@make -C minilibx-linux
-		@echo "\n\n minilibx complete!\n\n"
+clean:
+	@make -C $(MLX_PATH) clean
+	rm -f $(OBJECTS)
 
-make_dir:
-		@mkdir -p $(DIR_OBJ)
+fclean: clean
+	rm -f $(NAME)
 
-$(DIR_OBJ)/%.o: %.c $(HEADERS) | make_dir
-		@$(CC) $(CFLAGS) -c $< -o $@
+re: fclean all
 
-$(NAME)	:	$(OBJECTS) $(HEADERS)
-	@echo "Compiling so long"
-	@$(CC) $(CFLAGS) $(MLX_FLAGS) $(OBJECTS) $(INCLUDES) -o $(NAME)
-	@echo "Done!"
+norm:
+	norminette *.c *.h $(GNL_PATH)*.c $(GNL_PATH)*.h
 
-clean	:
-	@echo "Removing (so_long) objects..."
-	@make clean -C mlx
-	@rm -rf $(DIR_OBJ)
-	@echo "Done!"
-
-fclean	:	clean
-	@echo "Removing execute (so_long)..."
-	@rm -rf $(NAME)
-	@echo "Done!"
-
-re	:	fclean all
-
-.PHONY : all clean fclean re make_dir make_lib
+.PHONY: all clean fclean re norm

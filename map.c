@@ -1,82 +1,79 @@
 #include "so_long.h"
 
-static void	put_background(map_t map, t_data data)
+void put_background(t_data *data)
 {
-	int		i;
-	int		j;
+	int	i;
+	int	j;
 
 	i = 0;
-	while(map[i][j])
+	while (data->map->map[i])
 	{
 		j = 0;
-		while(map[i][j])
+		while (data->map->map[i][j])
 		{
-			mlx_put_image_to_window(data->mlx, data->window, data->back, i, j);
+			mlx_put_image_to_window(
+				data->mlx,
+				data->window,
+				data->back,
+				j * TILE_SIZE,
+				i * TILE_SIZE
+			);
 			j++;
 		}
 		i++;
 	}
 }
 
-static void	put_objects(map_t map, t_data data)
+static void put_objects(t_data *data)
 {
-	int		i;
-	int		j;
-
-	i = 0;
-	while(map[i][j])
-	{
-		j = 0;
-		while(map[i][j])
-		{
-			if(map[i][j] == '1')
-				mlx_put_image_to_window(data->mlx, data->window, data->wall, i, j);
-			else if(map[i][j] == 'C')
-				mlx_put_image_to_window(data->mlx, data->window, data->obj, i, j);
-			else if(map[i][j] == 'E')
-				mlx_put_image_to_window(data->mlx, data->window, data->exit, i, j);
-			else if(map[i][j] == 'P')
-				mlx_put_image_to_window(data->mlx, data->window, data->player, i, j);
-		}
-		i++;
-	}
+    int i;
+    int j;
+    
+    i = 0;
+    while (data->map->map[i])
+    {
+        j = 0;
+        while (data->map->map[i][j])
+        {
+            if (data->map->map[i][j] == '1')
+                mlx_put_image_to_window(data->mlx, data->window, data->wall, 
+                                       j * TILE_SIZE, i * TILE_SIZE);
+            else if (data->map->map[i][j] == 'C')
+                mlx_put_image_to_window(data->mlx, data->window, data->obj, 
+                                       j * TILE_SIZE, i * TILE_SIZE);
+            else if (data->map->map[i][j] == 'E' && !data->flag)
+                mlx_put_image_to_window(data->mlx, data->window, data->exit, 
+                                       j * TILE_SIZE, i * TILE_SIZE);
+            else if (data->map->map[i][j] == 'P')
+            {
+                mlx_put_image_to_window(data->mlx, data->window, data->player, 
+                                       j * TILE_SIZE, i * TILE_SIZE);
+                data->player_x = j * TILE_SIZE;
+                data->player_y = i * TILE_SIZE;
+            }
+            else if (data->map->map[i][j] == 'E' && data->flag)
+                mlx_put_image_to_window(data->mlx, data->window, data->player, 
+                                       j * TILE_SIZE, i * TILE_SIZE);
+            j++;
+        }
+        i++;
+    }
 }
 
-static void	ber_to_char(map_t *map, const char *file_path)
+void    open_exit(t_data *data)
 {
-	int		fd;
-	int		i = 0;
-	int		lines;
-	char	*line;
-
-	lines = map_h(map);
-	map->map = malloc(sizeof(char *) * (lines + 1));
-	if (!map->map)
-	{
-		handle_error();
-		return ;
-	}
-	map[lines] = '\0';
-	fd = open(file_path, O_RDONLY);
-	if (fd < 0)
-	{
-		handle_error();
-		return ;
-	}
-	while ((line = get_next_line(fd)) != NULL)
-	{
-		map->map[i] = line;
-		//if (i == 0)
-			//map->width = ft_strlen(line) - (line[ft_strlen(line) - 1] == '\n');
-		i++;
-	}
-	//map->height = i;
-	close(fd);
+    if (data->player_collectables == data->total_collectables)
+    {   
+        printf("win");
+        mlx_destroy_window(data->mlx, data->window);
+        mlx_destroy_display(data->mlx);
+        free(data->mlx);
+    }
 }
 
-void    create_map(map_t map, t_data data)
+void    create_map(t_data *data)
 {
-	ber_to_char(map, data);
-	put_background(map, data);
-	put_objects(map, data);
+    
+	put_background(data);
+	put_objects(data);
 }
