@@ -1,0 +1,98 @@
+#include "so_long.h"
+
+static int rectangular(t_data *data) 
+{
+    int i = 0;
+    int j;
+
+	i = 0;
+    if (!data->map[0] || data->width == 0)
+        return (0);
+    while (data->map[i])
+    {
+        j = 0;
+        while (data->map[i][j] && data->map[i][j] != '\n')
+            j++;
+        if (j != data->width)
+            return (0);
+        i++;
+    }
+    return (1);
+}
+
+static int walls(t_data *data)
+{
+    int i;
+    int j;
+    
+    if (!data->map || !data->map[0])
+        return 0;
+
+    i = 0;
+    while (i < data->height)
+    {
+        j = 0;
+        while (j < data->width)
+        {
+            if ((j == 0 || j == data->width - 1) && data->map[i][j] != '1')
+                return 0;
+            if ((i == 0 || i == data->height - 1) && data->map[i][j] != '1')
+                return 0;
+            j++;
+        }
+        i++;
+    }
+    return 1;
+}
+
+static int	possible(t_data *data)
+{	
+	char	*place;
+	char	**map_copy;
+	map_copy = duplicate_map(data->map, data->height);
+	if (!map_copy)
+		return 0;
+	data->collectables = 0;
+	data->exit = 0;
+	place = find_place(data, 'P');
+	if (!place)
+	{
+		free_map(map_copy);
+		return 0;
+	}
+	ft_painting(data, place[0], place[1], map_copy);
+	free(place);
+	free_map(map_copy);
+	if (data->exit_r == 0 || data->collectables != data->total_collectables)
+		return 0;
+	return 1;
+}
+
+static void ber_to_char(t_data *data, int fd)
+{
+    int i;
+    char *line;
+
+    i = 0;
+    while ((line = get_next_line(fd)))
+    {
+        data->map[i] = line;
+        if (i == 0)
+            data->width = ft_strlen(line) - 1;
+        i++;
+    }
+    data->height = i;
+    close(fd);
+}
+
+void	map_checker(t_data *data)
+{
+	ber_to_char(data, data->fd);
+    count_collectables(data);
+	if (!rectangular(data))
+		handle_error(NOTRECTANGULAR, data);
+	if (!walls(data))
+		handle_error(NOTWALLS, data);
+	if (!possible(data))
+		handle_error(NOTPOSSIBLE, data);
+}
