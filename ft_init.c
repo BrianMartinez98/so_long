@@ -1,60 +1,83 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_init.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: brimarti <brimarti@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/27 14:28:07 by brimarti          #+#    #+#             */
+/*   Updated: 2025/06/27 14:28:12 by brimarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-int	ft_init(t_data *data, char **argv, int fd)
+static void	check_filename(char *argv, t_data *data)
+{
+	if (ft_strlen(argv) < 4)
+		handle_error(BER, data);
+	argv = argv + (ft_strlen(argv) - 4);
+	if (ft_strncmp(argv, ".ber", 4))
+		handle_error(BER, data);
+}
+
+int	ft_init(t_data *data, char **argv)
 {
 	int	lines;
 
-	lines = count_lines(fd);
-	data->mlx = NULL;
-	data->window = NULL;
-	data->player_x = 0;
-	data->player_y = 0;
-	data->size_y = 0;
-	data->size_x = 0;
-	data->player_moves = 0;
-	data->fd = 0;
-	data->flag = false;
-	data->map->map = malloc(sizeof(char *) * (lines + 1));
-	if (!data->map->map)
-	{
-		write(2, "Error4\n", 7);
-		handle_error();
-	}
-	data->map->map[lines] = NULL;
-	data->collectables = 0;
-	data->file_name = malloc(sizeof(char) * (ft_strlen(argv[1]) + 1));
-	if (!data->file_name)
-		return (1);
-	ft_strcpy(data->file_name, argv[1]);
+	check_filename(argv[1], data);
+	data->fd = open(argv[1], O_RDONLY);
+	if (data->fd < 0)
+		handle_error(FD, data);
+	lines = count_lines(data->fd);
+	close(data->fd);
+	data->map = malloc(sizeof(char *) * (lines + 1));
+	if (!data->map)
+		handle_error(MALLOCERROR, data);
+	data->map[lines] = NULL;
+	data->fd = open(argv[1], O_RDONLY);
+	if (data->fd < 0)
+		handle_error(FD, data);
+	window_size(data, argv);
+	map_checker(data);
 	return (0);
 }
 
-void ft_img_init(t_data *data)
+void	check_chars(t_data *data)
 {
-    int width;
-    int height;
-    
-    data->back = mlx_xpm_file_to_image(data->mlx, "rs/back.xpm", &width, &height);
-    data->obj = mlx_xpm_file_to_image(data->mlx, "rs/obj.xpm", &width, &height);
-    data->wall = mlx_xpm_file_to_image(data->mlx, "rs/wall.xpm", &width, &height);
-    data->player = mlx_xpm_file_to_image(data->mlx, "rs/player.xpm", &width, &height);
-    data->exit = mlx_xpm_file_to_image(data->mlx, "rs/exit.xpm", &width, &height);
-    if (!data->back || !data->obj || !data->wall || !data->player || !data->exit)
-    {
-        write(2, "Error: Failed to load images\n", 27);
-        handle_error();
-    }
-}
+	int	i;
+	int	j;
 
-void    find_player(t_data *data)
-{
-    char	*place;
-
-    place = find_place(data, 'P');
-	if (!place)
+	i = (data->size_y) - 1;
+	data->enumb = 0;
+	data->pnumb = 0;
+	while (i >= 0)
 	{
-		return ;
+		j = 0;
+		while (data->map[i][j] && data->map[i][j] != '\n')
+		{
+			if (!ft_strchr(CHARS, data->map[i][j]))
+				handle_error(INVALID_CHARS, data);
+			if (data->map[i][j] == 'E')
+				data->enumb++;
+			if (data->map[i][j] == 'P')
+				data->pnumb++;
+			j++;
+		}
+		i--;
 	}
-    data->player_x = place[0];
-    data->player_y = place[1];
+	if (data->pnumb > 1 || data->enumb > 1)
+		handle_error(INVALID_PE, data);
 }
+/*
+void	find_player(t_data *data)
+{
+	char	*place;
+
+	place = find_place(data, 'P');
+	if (!place)
+		return ;
+	data->player_x = (int)place[0];
+	data->player_y = (int)place[1];
+}
+*/

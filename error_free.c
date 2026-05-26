@@ -1,51 +1,79 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_free.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: brimarti <brimarti@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/27 14:27:52 by brimarti          #+#    #+#             */
+/*   Updated: 2025/06/27 14:27:55 by brimarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-void	handle_error(void)
+static void	print_errors(t_errorlst error, char *error_msg[])
 {
-	write(2, "Error\n", 6);
-	exit(EXIT_FAILURE);
+	write(2, "ERROR: ", 7);
+	if (error == FD)
+		perror("open");
+	else if (error >= 0 && error_msg[error])
+		write(2, error_msg[error], ft_strlen(error_msg[error]));
+	else
+		write(2, "Unknown error\n", 14);
 }
 
-/*
-void free_data(t_data *data)
+void	handle_error(t_errorlst error, t_data *data)
 {
-    if (data)
-	{
-        if (data->map)
-		{
-            if (data->map->map)
-			{
-                for (int i = 0; data->map->map[i]; i++)
-                    free(data->map->map[i]);
-                free(data->map->map);
-            }
-            free(data->map);
-        }
-        if (data->file_name)
-            free(data->file_name);
-        if (data->mlx)
-		{
-            if (data->back) mlx_destroy_image(data->mlx, data->back);
-            if (data->wall) mlx_destroy_image(data->mlx, data->wall);
-            if (data->player) mlx_destroy_image(data->mlx, data->player);
-            if (data->exit) mlx_destroy_image(data->mlx, data->exit);
-            if (data->obj) mlx_destroy_image(data->mlx, data->obj);
-            if (data->window) mlx_destroy_window(data->mlx, data->window);
-            mlx_destroy_display(data->mlx);
-            free(data->mlx);
-        }
-        free(data);
-    }
-}
-*/
+	char	*error_msg[42];
 
-void free_map(char **map)
+	error_msg[PARAMETROS] = "Error en los parametros!\n";
+	error_msg[MALLOCERROR] = "Error Malloc!\n";
+	error_msg[FD] = "Fallo en el fd!\n";
+	error_msg[IMG_ERROR] = "Error en las imagenes!\n";
+	error_msg[NOTRECTANGULAR] = "El mapa no tiene la forma correcta!\n";
+	error_msg[NOTWALLS] = "El mapa no esta rodeado de muros!\n";
+	error_msg[NOTPOSSIBLE] = "No es un mapa posible!\n";
+	error_msg[BER] = "It is not a .ber!\n";
+	error_msg[INVALID_CHARS] = "Not correct characters!\n";
+	error_msg[INVALID_PE] = "Not correct number of player or exit!\n";
+	error_msg[NOTPLAYER] = "No hay jugador!\n";
+	error_msg[MAPERROR] = "Error de mapa!\n";
+	print_errors(error, error_msg);
+	destroy_all(data);
+	exit(1);
+}
+
+static void	destruction(t_data *data)
 {
-	int i = 0;
-	while (map[i])
+	if (data->back)
+		mlx_destroy_image(data->mlx, data->back);
+	if (data->wall)
+		mlx_destroy_image(data->mlx, data->wall);
+	if (data->player)
+		mlx_destroy_image(data->mlx, data->player);
+	if (data->exit)
+		mlx_destroy_image(data->mlx, data->exit);
+	if (data->obj)
+		mlx_destroy_image(data->mlx, data->obj);
+	if (data->window)
 	{
-		free(map[i]);
-		i++;
+		mlx_clear_window(data->mlx, data->window);
+		mlx_destroy_window(data->mlx, data->window);
 	}
-	free(map);
+	mlx_destroy_display(data->mlx);
+	mlx_loop_end(data->mlx);
+	free(data->mlx);
+}
+
+int	destroy_all(t_data *data)
+{
+	if (!data)
+		return (0);
+	if (data->mlx)
+		destruction(data);
+	free_data(data);
+	free(data);
+	exit(0);
+	return (0);
 }

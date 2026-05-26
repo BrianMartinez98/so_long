@@ -1,126 +1,115 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   checker_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: brimarti <brimarti@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/27 14:26:58 by brimarti          #+#    #+#             */
+/*   Updated: 2025/06/27 14:27:11 by brimarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-int count_lines(int fd)
+void	count_collectables(t_data *data)
 {
-	int		lines = 0;
-	char	*line;
-
-	lines = 0;
-	while ((line = get_next_line(fd)))
-	{
-		lines++;
-		free(line);
-	}
-	return (lines);
-}
-
-int	line_lenght(int fd)
-{
-	int		length;
-	int		bytes;
-	char	buffer[1];
-
-	buffer[0] = '\0';
-	bytes = 1;
-	length = 0;
-	while (bytes == 1)
-	{
-		bytes = read(fd, buffer, 1);
-		if (buffer[0] != '\n')
-			length++;
-		else
-			break ;
-	}
-	return (length);
-}
-
-void	window_size(t_data *data, char **argv)
-{ 
-	int	fd;
-
-	fd = open(argv[1], O_RDONLY);
-	if (fd < 0)  
-	{
-		perror("Error\nInvalid map_path/map\n");
-		exit(EXIT_FAILURE); 
-	}
-	if (ft_strnstr(argv[1], ".ber", ft_strlen(argv[1])) == NULL)
-	{
-		printf("Error\nmap has to be .ber\n");
-		exit(EXIT_FAILURE); 
-	} 
-	data->size_x = (line_lenght(fd) * TILE_SIZE); 
-	data->size_y = (count_lines(fd) * TILE_SIZE + 32);
-	close(fd);
-}
-
-char    *ft_strcpy(char *s1, char *s2)
-{
-	int i;
+	int	i;
+	int	j;
 
 	i = 0;
-	while (s2[i])
-	{
-		s1[i] = s2[i];
-		i++;
-	}
-	s1[i] = '\0';
-	return (s1);
-}
-
-char	*ft_strnstr(const char *haystack, const char *needle, size_t len)
-{
-	size_t	i;
-	size_t	j;
-
-	i = 0;
-	if (ft_strlen(needle) == 0)
-		return ((char *)haystack);
-	if (len == 0)
-		return (NULL);
-	while (haystack[i] != '\0' && i < len)
+	while (data->map[i])
 	{
 		j = 0;
-		while (needle[j] == haystack[i + j] && i + j < len)
+		while (data->map[i][j])
 		{
-			if (needle[j + 1] == '\0')
-				return ((char *)haystack + i);
+			if (data->map[i][j] == 'C')
+				data->total_collectables += 1;
 			j++;
 		}
 		i++;
 	}
+}
+
+char	**duplicate_map(char **original, int height, t_data *data)
+{
+	int		i;
+	char	**copy;
+
+	copy = malloc(sizeof(char *) * (height + 1));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < height)
+	{
+		copy[i] = ft_strdup(original[i]);
+		if (!copy[i])
+			handle_error(MALLOCERROR, data);
+		i++;
+	}
+	copy[height] = NULL;
+	return (copy);
+}
+
+static char	*set_place(int i, int j, char *place)
+{
+	place[0] = i;
+	place[1] = j;
+	return (place);
+}
+
+char	*find_place(t_data *data, char a)
+{
+	int		i;
+	int		j;
+	char	*place;
+
+	i = 0;
+	place = (char *)malloc(sizeof(char) * 3);
+	if (!place)
+		return (NULL);
+	while (data->map[i])
+	{
+		j = 0;
+		while (data->map[i][j])
+		{
+			if (data->map[i][j] == a)
+			{
+				set_place(i, j, place);
+				return (place);
+			}
+			j++;
+		}
+		i++;
+	}
+	free(place);
 	return (NULL);
 }
 
-void	*ft_memset(void *b, int c, size_t len)
+void	ft_painting(t_data *data, int row, int colum, char **map)
 {
-	size_t			i;
-	unsigned char	*ptr;
+	char	current;
 
-	i = 0;
-	ptr = (unsigned char *)b;
-	while (i < len)
-		ptr[i++] = (unsigned char)c;
-	return (b);
-}
-
-char *ft_strdup(char *src)
-{
-	int i = 0;
-	char *res;
-
-	while(src[i])
-		i++;
-	res = (char*)malloc(sizeof(*res) * i + 1);
-	if (res == NULL)
-		return (NULL);
-	i = 0;
-	while(src[i])
+	if (row < 0 || colum < 0 || row >= data->height)
+		return ;
+	if (colum >= (int)ft_strlen(map[row]))
+		return ;
+	current = map[row][colum];
+	if (current == 'r' || current == '1')
+		return ;
+	if (current == '0' || current == 'C')
 	{
-		res[i]=src[i];
-		i++;
+		if (current == 'C')
+			data->collectables++;
+		map[row][colum] = 'r';
 	}
-	res[i] = '\0';
-	return (res);
+	else if (current == 'E')
+	{
+		data->exit_r = 1;
+		return ;
+	}
+	ft_painting(data, row + 1, colum, map);
+	ft_painting(data, row - 1, colum, map);
+	ft_painting(data, row, colum + 1, map);
+	ft_painting(data, row, colum - 1, map);
 }
-
